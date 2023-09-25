@@ -99,7 +99,7 @@ Maps of fire activity during the observation period and spatial variability of t
 
 
 
-```{r, echo = T}
+```{r, echo = F}
 load("dat/DF_Aquitaine.Rdata") 
 #replace with paste0(DATA,"DF_Aquitaine_sim.Rdata")
 
@@ -159,7 +159,7 @@ In the following, we choose $n_{ss}=20000$, $q=0.9$ and $p=0.5$ (i.e. we keep as
 
 
 
-```{r, echo = T}
+```{r, echo =F}
 #| code-fold: false
 
 n_ss = 20000
@@ -245,7 +245,7 @@ For the SPDE-based effects, namely FWI, FA, DOY and Spatial, we construct a Mat�
 
 The 1-dimensional effects $f_\text{FWI,FA,DOY}$ in @eq-inla-occ are defined through quadratic splines with $5$ knots for FWI and DOY, and $6$ knots for FA. For FWI, we want to extrapolate values as a constant in cases where new covariate values used for prediction are larger than the observed covariate values used for fitting the model, so we impose a Neumann upper-bound condition corresponding to a zero first derivative.
 
-```{r, echo =T, message =F,warning=F}
+```{r, echo =F, message =F,warning=F}
 # dimension and shape parameter
 d = 1
 nu = 1
@@ -282,7 +282,7 @@ B_FA = inla.spde.make.A(mesh_FA, DF_sub$FA)
 
 Regarding the spatial effect $f_\text{Spatial}$, the triangulation mesh depicted in @fig-2d-mesh has $1051$ nodes. In order to avoid non-stationary effects of the SPDE solution near the boundaries, we define two regions with a lower density of triangulation nodes in the outer region. Based on previous studies [e.g. @Pimont2021], the parameters for the PC priors for the SPDE model (corresponding to exponential prior distributions for the standard deviation and the range parameter) are set using the following conditions: we set a probability of $50\%$ to have a standard deviation larger than $1$ and a probability of $5\%$ to have a spatial range smaller than $50$km.
 
-```{r, echo =T}
+```{r, echo =F}
 #| code-fold: false
 
 # dimension and shape parameter
@@ -327,7 +327,7 @@ points(coordinla,col="red",pch=19,cex=.5)
 
 To perform the model estimation, we gather all the information in a stack, a data format used in the R-INLA package that is appropriate for INLA and contains the data, the projection matrices and the different effects. In the model, we only have one fixed effect, which is the intercept, and five random effects. For the SPDE-based effects we include the indices of their associated SPDE. Then, we define the model formula as in @eq-inla-occ.
 
-```{r, echo =T}
+```{r, echo =F}
 #| code-fold: false
 
 fixed_effects_df = data.frame(intercept = rep(1,nrow(DF_sub))) 
@@ -345,7 +345,7 @@ formula = y ~ -1 +  intercept + f(YEAR,model="iid", hyper = hyper_prec) + f(DOY,
 We then fit the model calling $\texttt{inla()}$ with a number of user-specific settings to control how Laplace approximations are carried out and which posterior quantities are calculated.
 
 
-```{r, echo =T, warning = F}
+```{r, echo =F, warning = F}
 fit=inla(formula,
          data = inla.stack.data(stack.obs),
          family = "poisson",
@@ -440,7 +440,7 @@ Similarly to the occurrence model, we use INLA to perform the size model estimat
 
 
 
-```{r, echo = T}
+```{r, echo = F}
 DFsize = DF[DF$BA > 0.1, ] 
 
 B_FWI = inla.spde.make.A(mesh_FWI, DFsize$FWI)
@@ -542,7 +542,7 @@ For the occurrence model, we first have to sample from the posterior distributio
 Hereinafter, we perform $n=100$ simulations and results are depicted in @fig-res-occ. The top line panels depict the spatial patterns of observed and simulated fire occurrences. In the bottom line, the yearly aggregated occurrences are shown on the left. Then, we looked for a specific year the daily and weekly aggregation (middle and right panels) of simulated fire occurrences. We chose to examine the year $2010$, but any other year could have been considered.
 
 
-```{r, echo =T}
+```{r, echo =F}
 nsample = 100 # number of simulations
 projDF = DF[order(DF$PIX),]
 projDF$FWI = projDF$FWI
@@ -738,7 +738,7 @@ Simulations are presented in @fig-res-sizes. Again, the spatial aggregation is s
 
 
 
-```{r, echo =T}
+```{r, echo =F}
 nsim = l$nsim
 Proj = l$Liste_occur
 nsample.size = 1
@@ -1024,7 +1024,7 @@ Y_i \mid \mu_i,\boldsymbol{\theta}^\text{YEAR} \sim \text{Lognormal}(\mu_i,\sigm
 
 Since the posterior sampling from the fitted model takes a lot of memory to run, we have stored the results beforehand.
  
-```{r, echo=T,eval = FALSE}
+```{r, echo=F,eval = FALSE}
 model_names = c("IPSL_CM5A_WRF331F","MPI_ESM_RCA4","HadGEM_RCA4","CNRM_RCA4")
 nsample = niter2 = 20
 sample = inla.posterior.sample(n = nsample, result = fit)
@@ -1566,10 +1566,11 @@ We want to emphasize that our modeling approach for spatiotemporal marked point 
 
 # Appendix {.unnumbered}
 
+Estimates of $\beta_1$ as defined in @eq-inla-proj are depicted in @tbl-slope, highlighting for which climate model there is a positive trend in wildfire activities.  
 
 ```{r message=F}
 #| label: tbl-slope
-#| tbl-cap: "Estimated slopes $\\beta$ of the linear predictor defined in Eq. (5) for each climate model"
+#| tbl-cap: "Estimated slopes of the linear predictor defined in Eq. (5) for each climate model"
 
 load(file=paste0(DATA,"beta_smooth.RData"))
 library(knitr)
@@ -1581,10 +1582,15 @@ kable(cbind(beta[c(3,4,5,6,7,8,1,2),-4],beta.size[c(3,4,5,6,7,8,1,2),-4]),
 add_header_above(c(" ", "Occurrence" = 3, "Size" = 3))
 ```
 
+# Ackowledgments {.unnumbered}
+
+The authors are grateful to Météo-France for making the SAFRAN data available.
+
 # Supplementary materials {.unnumbered}
 
-All data used in this study are available at the following link: <span style="color:red;">ajouter lien zenodo</span>. Note that for confidentiality reasons, the fire data provided correspond to simulated data from the model developed in this work.
+All data used in this study are available at the following link: [https://doi.org/10.5281/zenodo.7870592](https://doi.org/10.5281/zenodo.7870592). Note that for confidentiality reasons, the fire data provided correspond to simulated data from the model developed in this work.
 
+The R codes are available on GitHub: [https://github.com/jlegrand35/wildfire_activities](https://github.com/jlegrand35/wildfire_activities)
 
 # References {.unnumbered}
 
@@ -1593,7 +1599,6 @@ All data used in this study are available at the following link: <span style="co
 
 # Session information {.appendix .unnumbered}
 
-```{r session-info}
-sessionInfo()
-```
-
+```{r session-info} 
+  sessionInfo() 
+``` 
