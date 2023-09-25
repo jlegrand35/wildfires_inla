@@ -4,8 +4,7 @@ subtitle: "A step-by-step marked point process approach using INLA-SPDE"
 author:
   - name: Juliette Legrand
     corresponding: true
-    email: juliette.legrand1@inrae.fr
-    url: https://biosp.mathnum.inrae.fr/homepage-juliette-legrand
+    email: juliette.legrand@univ-brest.fr
     affiliation: Biostatistics and Spatial Processes, INRAE, Avignon, France
     affiliation-url: https://biosp.mathnum.inrae.fr/
   - name: François Pimont
