@@ -29,7 +29,7 @@ citation:
   container-title: "Computo"
   doi: "xxxx"
   url: https://computo.sfds.asso.fr/template-computo-quarto
-bibliography: biblio_fire.bib
+bibliography: references.bib
 github-user: computorg
 repo: "template-computo-quarto"
 draft: true # set to false once the build is running
