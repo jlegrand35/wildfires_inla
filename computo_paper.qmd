@@ -45,7 +45,6 @@ options(htmltools.dir.version = FALSE)
 
 
 ```{r, message = F}
-library(INLA)
 library(sp) 
 library(fields)
 library(evd)
@@ -54,8 +53,11 @@ library(ggplot2)
 library(gridExtra)
 library(dplyr)
 library(spdep)
+library(INLA)
 
-DATA = "computo_data/"
+
+
+# DATA = "computo_data/"
 
 poisson.sim.occ =function(x,Dat){
   # simulation of observing at least 1 fire + selection of corresponding events
@@ -99,19 +101,25 @@ Maps of fire activity during the observation period and spatial variability of t
 
 
 ```{r, echo = F}
-load("dat/DF_Aquitaine.Rdata") 
-#replace with paste0(DATA,"DF_Aquitaine_sim.Rdata")
+# load("DF_Aquitaine.Rdata" ) #with the original data
+# WARNING: this has to be changed with the simulated data as follows:
+if (!(file.exists("fire_data.zip"))){
+  system("wget https://zenodo.org/record/7870593/files/fire_data.zip")
+}
+temp = unz("fire_data.zip", "DF_Aquitaine_sim.RData")
+load(temp)
+rm(temp)
 
 #SAFRAN coordinates
-coord = read.csv(file=paste0(DATA,"Coord_L2E_dep.csv"),sep=";")
-#Keep only summer fires
-DF = DF[(DF$DOY >=154) & (DF$DOY<=314),]
+temp = unz("fire_data.zip", "Coord_L2E_dep.csv")
+coord = read.csv(file=temp,sep=";")
+rm(temp)
+
+DF = DF[(DF$DOY >=154) & (DF$DOY<=314),] #Keep only summer fires
 ```
 
 
 ```{r, echo = F}
-#remove variables not used
-DF$FWI = DF$FWIfl1
 DF = DF[ ,c("PIX","XL2e","YL2e","DEP","YEAR","DOY","FWI","FA","NB0.1","BA")]
 ```
 
@@ -1571,7 +1579,10 @@ Estimates of $\beta_1$ as defined in @eq-inla-proj are depicted in @tbl-slope, h
 #| label: tbl-slope
 #| tbl-cap: "Estimated slopes of the linear predictor defined in Eq. (5) for each climate model"
 
-load(file=paste0(DATA,"beta_smooth.RData"))
+temp = unz("fire_data.zip", "beta_smooth.RData")
+load(temp)
+rm(temp)
+
 library(knitr)
 library(kableExtra)
 row.names(beta) = beta[,4]
