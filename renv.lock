@@ -23,7 +23,7 @@
     "INLA": {
       "Package": "INLA",
       "Version": "22.05.07",
-      "Source": "unknown",
+      "Source": "https://inla.r-inla-download.org/R/stable",
       "Requirements": [
         "Matrix",
         "R",
