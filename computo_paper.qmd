@@ -1588,7 +1588,7 @@ library(knitr)
 library(kableExtra)
 row.names(beta) = beta[,4]
 all_betas = round(cbind(beta[c(3,4,5,6,7,8,1,2),-4],beta.size[c(3,4,5,6,7,8,1,2),-4]),3)
-kable(all_betas,escape = FALSE) %>%
+kable(all_betas,escape = T) %>%
   kable_styling(position = "center")%>%
   row_spec(which(rowSums(all_betas>0)==6), color = "red")%>%
 add_header_above(c(" ", "Occurrence" = 3, "Size" = 3))
