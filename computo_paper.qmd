@@ -105,11 +105,14 @@ Maps of fire activity during the observation period and spatial variability of t
 # load("DF_Aquitaine.Rdata" ) #with the original data
 # WARNING: this has to be changed with the simulated data as follows:
 if (!(file.exists("fire_data.zip"))){
-  system("wget https://zenodo.org/record/7870593/files/fire_data.zip")
+  #system("wget https://zenodo.org/record/7870593/files/fire_data.zip")
+  temp_file = tempfile()
+  download.file("https://zenodo.org/record/7870593/files/fire_data.zip",temp_file,mode = 'wb' )
 }
 temp = unz("fire_data.zip", "DF_Aquitaine_sim.RData")
 load(temp)
 rm(temp)
+unlink(temp_file)
 
 #SAFRAN coordinates
 temp = unz("fire_data.zip", "Coord_L2E_dep.csv")
