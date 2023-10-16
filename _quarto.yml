@@ -1,3 +1,9 @@
+project:
+  type: website
+  title: "submitted-202310-legrand"
+  render:
+    - computo_paper.qmd
+
 number-sections: true
 format:
   html:
