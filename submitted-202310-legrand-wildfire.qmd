@@ -47,6 +47,7 @@ options(htmltools.dir.version = FALSE)
 ```{r, message = F}
 options("rgdal_show_exportToProj4_warnings"="none")
 library(sp) 
+library(splancs) 
 library(fields)
 library(evd)
 library(stringr)
@@ -56,7 +57,6 @@ library(dplyr)
 library(spdep)
 library(viridis)
 library(INLA)
-
 
 
 # DATA = "computo_data/"

@@ -1078,6 +1078,21 @@
       ],
       "Hash": "e155cf507897a25ea568ee451fb1cdc9"
     },
+    "splancs": {
+      "Package": "splancs",
+      "Version": "2.01-44",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "grDevices",
+        "graphics",
+        "methods",
+        "sp",
+        "stats"
+      ],
+      "Hash": "2d8eeda5d4b60480add3be08280e55a9"
+    },
     "stringi": {
       "Package": "stringi",
       "Version": "1.7.12",
