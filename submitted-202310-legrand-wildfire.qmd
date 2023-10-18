@@ -18,8 +18,6 @@ author:
     affiliation: Biostatistics and Spatial Processes, INRAE, Avignon, France
     affiliation-url: https://biosp.mathnum.inrae.fr/
 date: last-modified
-# description: |
-#   This document provides a template based on the quarto system for contributions to Computo, using the jounral extension and the knitr kernel (R user).
 abstract: >+
    Appropriate spatiotemporal modelling of wildfire activity is crucial for its prediction and risk managements. Here, we focus on wildfire risk in the Aquitaine region in the Southwest of France and its projection under climate change. We study whether wildfire risk could further increase under climate change in this specific region, which does not lie in the historical core area of wildfires in France, corresponding to the Southeast. For this purpose, we consider a marked spatiotemporal point process, a flexible model for occurrences and magnitudes of such environmental risks, where the magnitudes are defined as the burnt areas. The model is first calibrated using 14 years of past observation data and then applied for projection of climate-change impacts using simulations of numerical climate models until 2100 as new inputs. We work within the framework of a spatiotemporal Bayesian hierarchical model and we present the workflow of its implementation for a large dataset at daily resolution for 8km-pixels using the INLA-SPDE approach. The assessment of the posterior distributions show a satisfactory fit of the model for the observation period. We calculate projections by combining climate model output with posterior simulations of model parameters. Depending on climate models, smoothed projections indicate low to moderate increase of wildfire activity under climate change. However, the increase is weaker than in the historical core area, which we attribute to different weather conditions (oceanic versus Mediterranean). Besides providing a relevant case study of environmental risk modelling, this paper is also intended to provide a full workflow for implementing the Bayesian estimation of marked log-Gaussian Cox processes using the R-INLA package of the R statistical software.
 keywords: [Spatiotemporal model, Integrated Nested Laplace Approximation, Marked log-Gaussian Cox process, SPDE approach, Wildfires, Climate projections]
@@ -27,10 +25,10 @@ citation:
   type: article-journal
   container-title: "Computo"
   doi: "xxxx"
-  url: https://computo.sfds.asso.fr/template-computo-quarto
+  url: https://computo.sfds.asso.fr/
 bibliography: references.bib
 github-user: jlegrand35
-repo: "template-computo-quarto"
+repo: "wildfires_inla"
 draft: true # set to false once the build is running
 published: false # will be set to true once accepted
 format:
@@ -39,7 +37,7 @@ format:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(tidy = FALSE, fig.width = 8, fig.height = 8, echo = FALSE, warning = F)
+knitr::opts_chunk$set(tidy = FALSE, fig.width = 8, fig.height = 8, echo = FALSE, warning = FALSE, message = FALSE)
 options(htmltools.dir.version = FALSE)
 ```
 
@@ -58,7 +56,8 @@ library(dplyr)
 library(spdep)
 library(viridis)
 library(INLA)
-
+library(knitr)
+library(kableExtra)
 
 # DATA = "computo_data/"
 
@@ -259,7 +258,7 @@ For the SPDE-based effects, namely FWI, FA, DOY and Spatial, we construct a Mat�
 
 The 1-dimensional effects $f_\text{FWI,FA,DOY}$ in @eq-inla-occ are defined through quadratic splines with $5$ knots for FWI and DOY, and $6$ knots for FA. For FWI, we want to extrapolate values as a constant in cases where new covariate values used for prediction are larger than the observed covariate values used for fitting the model, so we impose a Neumann upper-bound condition corresponding to a zero first derivative.
 
-```{r, echo =F, message =F,warning=F}
+```{r, echo=F, message=F, warning=F}
 # dimension and shape parameter
 d = 1
 nu = 1
@@ -746,11 +745,9 @@ grid.arrange(p1,p3,p4,p5, ncol=3, nrow = 2,layout_matrix=rbind(c(1,1,1),c(2,3,4)
 
 ## Size component {#sec-sim-sizes}
 
-As for the occurrence model, we illustrate the applicability of our model through simulations and compare the simulated sizes with the historical data (see @fig-res-sizes). The simulation scheme is as follows: for each of the $100$ previously simulated samples of fire occurrences, we generate the associated sizes by sampling the posterior distributions of the fitted size model effects and use the additivity of the linear predictor as defined in @eq-size-model. 
+As for the occurrence model, we illustrate the applicability of our model through simulations and compare the simulated sizes with the historical data (see @fig-res-sizes). The simulation scheme is as follows: for each of the $100$ previously simulated samples of fire occurrences, we generate the associated sizes by sampling the posterior distributions of the fitted size model effects and use the additivity of the linear predictor as defined in @eq-size-model.
 
-Simulations are presented in @fig-res-sizes. Again, the spatial aggregation is shown in the top line panels. The yearly aggregated burnt areas are depicted in the bottom-left panel. Finally, the middle and right panels in the bottom line depict the weekly aggregated occurrences of fires greater than $1$ ha and $10$ ha respectively. 
-
-
+Simulations are presented in @fig-res-sizes. Again, the spatial aggregation is shown in the top line panels. The yearly aggregated burnt areas are depicted in the bottom-left panel. Finally, the middle and right panels in the bottom line depict the weekly aggregated occurrences of fires greater than $1$ ha and $10$ ha respectively.
 
 ```{r, echo =F}
 nsim = l$nsim
@@ -776,7 +773,7 @@ for (i in 1:length(Proj)){
     meshproj = inla.mesh.projector(meshproj, loc = projDF.size[,eff])
     x.comp[[eff]]=inla.mesh.project(meshproj, x.comp[[eff]])
   }
-  
+
   # OFFSET
   x.proj = 0 # if offset, not the case here
   # FIXED EFFECTS
@@ -805,7 +802,7 @@ for (i in 1:length(Proj)){
   for (j in 1:nrow(projDF.size)){
     surf.sim[j] = rgamma(1,shape=phi,rate=phi/mu[j])
   }
-  idx.withrepl=rep(1:nrow(projDF.size),projDF.size$Occur_sim) 
+  idx.withrepl=rep(1:nrow(projDF.size),projDF.size$Occur_sim)
   Proj[[i]]$Surf_sim = aggregate(surf.sim,by=list(idx.withrepl),FUN=sum)[,-1]
   Proj[[i]]$N03_sim=aggregate(surf.sim>=0.3,by=list(idx.withrepl),FUN=sum)[,-1]
   Proj[[i]]$N05_sim=aggregate(surf.sim>=0.5,by=list(idx.withrepl),FUN=sum)[,-1]
@@ -847,7 +844,6 @@ p2 = ggplot(data = BA.aggr.ori)+
   theme_bw()
 
 ```
-
 
 ```{r, echo =F,fig.width=10,fig.height=6}
 #| label: fig-res-sizes
@@ -893,11 +889,11 @@ p1 = ggplot(data)+
         legend.title=element_text(size=14),
         legend.text=element_text(size=12),
         strip.text.x = element_text(size = 14))
-        
-        
 
 
-# Occurrences given threshold on BA: Weekly aggregation for one specific year 
+
+
+# Occurrences given threshold on BA: Weekly aggregation for one specific year
 year = 2010 #can be changed for another year
 thresh = 0.3
 df = DFsize[DFsize$BA >= thresh,]
@@ -1015,18 +1011,16 @@ grid.arrange(p1,p2,p5,p6,ncol=3,nrow=2,
 
 ```
 
-
-
-The size simulations depicted in @fig-res-sizes show that the model successfully recovers the spatial pattern but misses some of the the most extreme values in terms of coverage of pointwise credible intervals. Unlike the fire occurrences, the distribution of burnt areas is heavy-tailed and more difficult to predict. Still, looking at the temporal aggregation the simulations provide satisfying results and almost all observations are within the uncertainty bands. We note that for the largest fires (i.e. greater than $10$ ha), the sample size being much smaller, the uncertainties are larger. 
+The size simulations depicted in @fig-res-sizes show that the model successfully recovers the spatial pattern but misses some of the the most extreme values in terms of coverage of pointwise credible intervals. Unlike the fire occurrences, the distribution of burnt areas is heavy-tailed and more difficult to predict. Still, looking at the temporal aggregation the simulations provide satisfying results and almost all observations are within the uncertainty bands. We note that for the largest fires (i.e. greater than $10$ ha), the sample size being much smaller, the uncertainties are larger.
 
 
 
 # Future wildfire simulations derived from climate model projections {#sec-proj}
- 
- We consider hereafter four different climate models under two climate scenarios RCP4.5 and RCP8.5 where the second one is more pessimistic in terms of expected global warming than the first one. The models, together with the institutes having developed them written in parentheses, are as follows: IPSL-CM5A (Institut Pierre-Simon Laplace, France), MPI-ESM (Max Planck Institut für Meteorologie, Germany), HadGEM2 (Met Office Hadley Center, UK) and CNRM (Météo-France, France). 
- 
+
+ We consider hereafter four different climate models under two climate scenarios RCP4.5 and RCP8.5 where the second one is more pessimistic in terms of expected global warming than the first one. The models, together with the institutes having developed them written in parentheses, are as follows: IPSL-CM5A (Institut Pierre-Simon Laplace, France), MPI-ESM (Max Planck Institut für Meteorologie, Germany), HadGEM2 (Met Office Hadley Center, UK) and CNRM (Météo-France, France).
+
  For simulated FWI values in the climate change projections that fall outside the range of historical FWI values, we extrapolate the function $f_\text{FWI}$ as a constant. For the forest surface FA in each pixel, we extrapolate the historical values in a constant manner, that is, we use the values available for 2018.
- 
+
 We perform $n = 20$ realizations of pixel-day occurrences and generate for each occurrence its associated size. The occurrences and sizes can then be aggregated over various spatial and temporal scales to study the potential evolutions of future wildfire risk. In @fig-climate-models, we depict the results at an annual scale. Interannual variability in simulated counts and sizes remains relatively high, even after averaging the twenty realizations over the whole study area. To smooth the projected curves and identify long-term trends in wildfire activity, we implemented a 1D-SPDE INLA model, given by @eq-inla-proj. The basis representation for the yearly effect is defined through a quadratic spline and we set PC priors for the prior function such that the probability to have a standard deviation larger than $100$ is equal to $0.5$ and we fix a range value of $30$ years. This choice is motivated by the fact that a $30$-year period is often used to calculate averages in climatological studies. Moreover, to assess if there is a general upward trend in the smoothed curve, we include the rescaled year as a linear covariate, i.e., as a fixed effect. The rescaling is constructed such as to interpret the coefficient $\beta_1$ as a decadal effect. Therefore, the role of the spline function $f_\text{YEAR}$ is to model nonlinear deviations from the general linear trend, $\beta_0+\beta_1\left(\text{YEAR}_i-2020\right)/10$. For the sake of identifiability, we set Dirichlet boundary conditions for the spline function, such that it takes value zero at both boundaries.
 
 $$\begin{array}{cc}
@@ -1037,7 +1031,7 @@ Y_i \mid \mu_i,\boldsymbol{\theta}^\text{YEAR} \sim \text{Lognormal}(\mu_i,\sigm
 
 
 Since the posterior sampling from the fitted model takes a lot of memory to run, we have stored the results beforehand.
- 
+
 ```{r, echo=F,eval = FALSE}
 model_names = c("IPSL_CM5A_WRF331F","MPI_ESM_RCA4","HadGEM_RCA4","CNRM_RCA4")
 nsample = niter2 = 20
@@ -1066,33 +1060,33 @@ fixed_effects_df = data.frame(intercept = rep(1, n_years),time = (year_proj-2020
 beta = beta.size = NULL
 
 for (model in 1:4){
-  
+
   #FWI values
   name_clim_model = model_names[model]
   load(paste0("DATA","projections_FWI_",name_clim_model,".RData"))
-  
+
   sim_counts_45 = sim_counts_85 = matrix(NA, nrow =nrow(fwi_rc45), ncol=nsample)
-  
+
   # add FA values
   fwi_rc45$FA = FA_proj$FA[match(fwi_rc45$PIX, FA_proj$PIX)]
   fwi_rc85$FA = FA_proj$FA[match(fwi_rc85$PIX, FA_proj$PIX)]
-  
+
   # add DEP values
   fwi_rc45$DEP = FA_proj$DEP[match(fwi_rc45$PIX, FA_proj$PIX)]
   fwi_rc85$DEP = FA_proj$DEP[match(fwi_rc85$PIX, FA_proj$PIX)]
-  
+
   #Rename FWIfl1 for simplicity
   fwi_rc45$FWI = fwi_rc45$FWIfl1
   fwi_rc85$FWI = fwi_rc85$FWIfl1
   fwi_rc85$FWIfl1 = fwi_rc45$FWIfl1 = NULL
-  
+
   # constant extrapolation
   fwi_rc45$FWI[fwi_rc45$FWI > mesh_FWI$interval[2]] = mesh_FWI$interval[2]
   fwi_rc85$FWI[fwi_rc85$FWI > mesh_FWI$interval[2]] = mesh_FWI$interval[2]
-  
+
   id_SAFRAN = unique(fwi_rc45$PIX)
   coordinla_proj = cbind(coord$XL2e, coord$YL2e)[match(id_SAFRAN, coord$N_SAFRAN),]/10^6
-  
+
   x.comp.45 = x.comp.85 =list()
   fixedEffectsId=rownames(fit$summary.fixed)
   eff = fixedEffectsId[1]
@@ -1114,7 +1108,7 @@ for (model in 1:4){
     x.comp.45[[eff]]=inla.mesh.project(meshproj.45, x.comp.45[[eff]])
     x.comp.85[[eff]]=inla.mesh.project(meshproj.85, x.comp.85[[eff]])
   }
-  
+
   # Then simulation of fire occurrences:
   niter2 = nsample; nsample2 = 1
   idspat = match(fwi_rc45$PIX,unique(fwi_rc45$PIX))
@@ -1158,13 +1152,13 @@ for (model in 1:4){
   }
   rm(lamda.45,lambda.85,x.proj.45,x.proj.85,x.comp.45,x.comp.85)
   gc()
-  
+
   #Size projections
   sim_size_45_tot=sim_size_85_tot = matrix(0,nrow=dim(fwi_rc45)[1],ncol=niter2)
   for (k in 1:niter2){
     projDF.size.45 = fwi_rc45[sim_counts_45[,k]>0,]
     projDF.size.85 = fwi_rc85[sim_counts_85[,k]>0,]
-    
+
     x.comp.45.size = x.comp.85.size =list()
     fixedEffectsId=rownames(fit.size$summary.fixed)
     eff = fixedEffectsId[1]
@@ -1179,9 +1173,9 @@ for (model in 1:4){
       meshproj.45 = inla.mesh.projector(meshproj, loc = projDF.size.45[,eff])
       meshproj.85 = inla.mesh.projector(meshproj, loc = projDF.size.85[,eff])
       x.comp.45.size[[eff]]=inla.mesh.project(meshproj.45, x.comp.45.size[[eff]])
-      x.comp.85.size[[eff]]=inla.mesh.project(meshproj.85, x.comp.85.size[[eff]]) 
+      x.comp.85.size[[eff]]=inla.mesh.project(meshproj.85, x.comp.85.size[[eff]])
     }
-    x.proj.45.size = x.proj.85.size = 0 
+    x.proj.45.size = x.proj.85.size = 0
     # FIXED EFFECTS
     if (length(fixedEffectsId)>0) {
       for (eff in fixedEffectsId) {
@@ -1216,7 +1210,7 @@ for (model in 1:4){
     mu.85 = as.vector(exp(x.proj.85.size))
     sim_size_45 = rgamma(n=dim(projDF.size.45)[1],shape = phi,rate=as.vector(phi/mu.45))
     sim_size_85 = rgamma(n=dim(projDF.size.85)[1],shape = phi,rate=as.vector(phi/mu.85))
-    
+
     idx.45= which(sim_counts_45[,k]>0)#rep(1:dim(fwi_rc45)[1],sim_counts_45[,k])
     idx.85=which(sim_counts_85[,k]>0)#rep(1:dim(projDF.size.85)[1],sim_counts_85[,k])
     sim_size_45_tot[idx.45,k] = sim_size_45
@@ -1224,7 +1218,7 @@ for (model in 1:4){
   }
   rm(idx.45,idx.85,mu.45,mu.85,x.proj.45.size,x.proj.85.size,sim_size_45,sim_size_85,x.comp.45.size,x.comp.85.size,projDF.size.85,projDF.size.45)
   gc()
-  
+
   # Map of mean between 2070-2100
   sim_counts_45_map =as.data.frame(sim_counts_45)
   sim_counts_45_map$YEAR = fwi_rc45$YEAR
@@ -1271,7 +1265,7 @@ for (model in 1:4){
   file_name = paste0(DATA,"map_proj_size_", model, ".RData")
   save(data,file = file_name)
 
-  
+
   # Yearly mean + smooth for trend
   sim_counts_85 =as.data.frame(sim_counts_85)
   sim_counts_85$YEAR = fwi_rc85$YEAR
@@ -1294,10 +1288,10 @@ for (model in 1:4){
   yearly.mean.45.size = apply(yearly.mean.45.size[,-1],1,FUN=mean)
 
   gc()
-  
+
   #smoothing curves with INLA
-  stack = inla.stack(data = list(y_45 = yearly.mean.45, y_85 = yearly.mean.85, y_45.size =  yearly.mean.45.size,y_85.size =  yearly.mean.85.size), A = list(B_proj, 1), effects = list(idx_proj, fixed_effects_df)) 
-  hyper_prec=list(theta=list(initial = log(1), prior="pc.prec", 
+  stack = inla.stack(data = list(y_45 = yearly.mean.45, y_85 = yearly.mean.85, y_45.size =  yearly.mean.45.size,y_85.size =  yearly.mean.85.size), A = list(B_proj, 1), effects = list(idx_proj, fixed_effects_df))
+  hyper_prec=list(theta=list(initial = log(1), prior="pc.prec",
                              param = c(1, 0.5)))
   my_formula = y_45 ~ -1 + intercept + time  + f(proj, model = spde_proj)
   fit_45 = inla(my_formula,
@@ -1323,18 +1317,18 @@ for (model in 1:4){
                      family = "lognormal",
                      control.family = list(hyper = hyper_prec),
                      control.predictor = list(compute = FALSE, A = inla.stack.A(stack)),verbose = FALSE, num.threads = 2)
-  
+
   #save slope parameters
   beta = rbind(beta,cbind(fit_45$summary.fixed[2,c(1,3,5)],
                           "lab"=paste(name_clim_model,"4.5")))
   beta = rbind(beta,cbind(fit_85$summary.fixed[2,c(1,3,5)],
                           "lab"=paste(name_clim_model,"8.5")))
-  
+
     beta.size = rbind(beta.size,cbind(fit_45.size$summary.fixed[2,c(1,3,5)],
                                       "lab"=paste(name_clim_model,"4.5")))
   beta.size = rbind(beta.size,cbind(fit_85.size$summary.fixed[2,c(1,3,5)],
                                     "lab"=paste(name_clim_model,"8.5")))
-  
+
   #plot the results
   eff = "proj"
   grid = inla.mesh.projector(mesh_proj, loc = year_proj)
@@ -1379,7 +1373,7 @@ for (model in 1:4){
   curve_mean_85 = 100 * exp(fit_85.size$summary.linear.predictor$mean[1:ngrid])
   curve_upper_85 = 100 * exp(fit_85.size$summary.linear.predictor$`0.975quant`[1:ngrid])
   curve_lower_85 = 100 * exp(fit_85.size$summary.linear.predictor$`0.025quant`[1:ngrid])
-   
+
   ggplot()+
     geom_point(aes_string(x=year_proj,y=yearly.mean.45.size),color = "gray50",size=2)+
     ylim(0,2500)+
@@ -1427,9 +1421,9 @@ Annual means of wildfire occurrences (top-line) and sizes (bottom-line) for the 
 :::
 
 
-Looking at @fig-climate-models, the four climate models provide  substantially different results. The IPSL-CM5A and CNRM show no significant trend either for occurrences or for sizes under both scenarios. Among the two other models, MPI-ESM  shows a clearer trend: by 2100, the number of wildfire occurrences can be expected to double on average under the most pessimistic emission scenario. The associated wildfire sizes are also increasing, going from $500$ ha in 2020 to up to $1500$ ha by the end of the century. This evolution can be better measured by looking at the posterior distribution of the decadal linear effect defined in @eq-inla-proj. Summary statistics for $\beta_1$ are reported in @tbl-slope (see Appendix). Under the RCP8.5 scenario, the HadGEM-RCA4 and MPI-ESM models lead to significantly positive $\beta_1$ estimates since their $95\%$ credible intervals do not contain zero. 
+Looking at @fig-climate-models, the four climate models provide  substantially different results. The IPSL-CM5A and CNRM show no significant trend either for occurrences or for sizes under both scenarios. Among the two other models, MPI-ESM  shows a clearer trend: by 2100, the number of wildfire occurrences can be expected to double on average under the most pessimistic emission scenario. The associated wildfire sizes are also increasing, going from $500$ ha in 2020 to up to $1500$ ha by the end of the century. This evolution can be better measured by looking at the posterior distribution of the decadal linear effect defined in @eq-inla-proj. Summary statistics for $\beta_1$ are reported in the Appendix. Under the RCP8.5 scenario, the HadGEM-RCA4 and MPI-ESM models lead to significantly positive $\beta_1$ estimates since their $95\%$ credible intervals do not contain zero.
 
-To capture potential spatial variability of projected wildfire activities, we also considered the spatial aggregation of the simulated occurrences and sizes during the end of the projection period (2070–2100), results are depicted in @fig-climate-models-map. 
+To capture potential spatial variability of projected wildfire activities, we also considered the spatial aggregation of the simulated occurrences and sizes during the end of the projection period (2070–2100), results are depicted in @fig-climate-models-map.
 
 
 ```{r, eval = F,echo= F}
@@ -1465,7 +1459,7 @@ p1 = ggplot(data.obs)+
   ggtitle("Observations")+
   labs( color="Counts/yr",
         y = 'Latitude', x = 'Longitude')+
-  scale_color_viridis(na.value = NA, 
+  scale_color_viridis(na.value = NA,
                       limits = range(All_maps$NB),
                       guide="none")+
   theme(axis.text=element_text(size=14),
@@ -1519,7 +1513,7 @@ p1 = ggplot(data.obs)+
   ggtitle("Observations")+
   labs( color="Burnt area (ha)",
         y = 'Latitude', x = 'Longitude')+
-  scale_color_viridis_d(na.value = NA ,drop = FALSE, 
+  scale_color_viridis_d(na.value = NA ,drop = FALSE,
                       guide="none")+
   theme(axis.text=element_text(size=14),
         axis.title=element_text(size=24),
@@ -1570,7 +1564,7 @@ These experiments seem to indicate that for the Aquitaine region the climate-rel
 
 A first remark should be made concerning the most recent wildfire events: as the 2022 weather data are not yet available, the 2022 summer fire season was not considered in this study. Therefore, the projections obtained above do not take into account the relatively extreme fire activities with several very large fires that have been observed in the Western part of France during this period, and the resulting projections could potentially have been more pessimistic in terms of the future increase of wildfire risk in the study region. The results we obtain point towards an increase in future wildfire risk. However, the uncertainty about the future climate remains large and propagates through to projected wildfire risk. Indeed, the weather simulations of the four climate models considered here lead to clearly significant increases only in some cases for rather pessimistic scenarios of greenhouse gas emissions.
 
-This work presented a step-by-step methodology for the modelling of spatiotemporal marked point processes, that has been applied to the modelling of wildfire activities in the Southwest region of France. Due to the high stochasticity involved in wildfire activity but also in climate-change projections, and due to the complex processes and data that have to be modeled, Bayesian hierarchical modeling provides an appropriate framework for including various observed predictors and random effects into a model that allows for accurate predictions with precise uncertainty assessment. Our model includes additive random effects for various components of the linear predictors, such as nonlinear effects of continuous covariates, spatial random effects and temporal random effects. The SPDE approach provides flexible Gaussian prior distributions for such effects with two hyperparameters for the variance and the correlation range, and the INLA method allows for fast and reliable Bayesian inference even with complex and high-dimensional structures of the latent linear predictor and the likelihood model of the data. 
+This work presented a step-by-step methodology for the modelling of spatiotemporal marked point processes, that has been applied to the modelling of wildfire activities in the Southwest region of France. Due to the high stochasticity involved in wildfire activity but also in climate-change projections, and due to the complex processes and data that have to be modeled, Bayesian hierarchical modeling provides an appropriate framework for including various observed predictors and random effects into a model that allows for accurate predictions with precise uncertainty assessment. Our model includes additive random effects for various components of the linear predictors, such as nonlinear effects of continuous covariates, spatial random effects and temporal random effects. The SPDE approach provides flexible Gaussian prior distributions for such effects with two hyperparameters for the variance and the correlation range, and the INLA method allows for fast and reliable Bayesian inference even with complex and high-dimensional structures of the latent linear predictor and the likelihood model of the data.
 
 In addition, we also presented how INLA can be used to smooth relatively noisy simulations of projected time series of risk occurrences, here based on combining posterior simulations of model parameters with new weather-related covariates obtained from climate model output. Our smoothing approach based on a Bayesian hierarchical model is an attractive statistical alternative to the classical filtering approaches from signal processing, since it can lead to more interpretable results while at the same time providing uncertainty envelopes.
 
@@ -1580,23 +1574,20 @@ We want to emphasize that our modeling approach for spatiotemporal marked point 
 
 # Appendix {.unnumbered}
 
-Estimates of $\beta_1$ as defined in @eq-inla-proj are depicted in @tbl-slope, highlighting for which climate model there is a positive trend in wildfire activities (in red).  
+Estimates of $\beta_1$ as defined in @eq-inla-proj are depicted in the folowing table, highlighting for which climate model there is a positive trend in wildfire activities (in red).
 
-```{r message=F}
-#| label: tbl-slope
+```{r}
 #| tbl-cap: "Estimated slopes of the linear predictor defined in Eq. (5) for each climate model"
 
 temp = unz("fire_data.zip", "beta_smooth.RData")
 load(temp)
 rm(temp)
 
-library(knitr)
-library(kableExtra)
 row.names(beta) = beta[,4]
 all_betas = round(cbind(beta[c(3,4,5,6,7,8,1,2),-4],beta.size[c(3,4,5,6,7,8,1,2),-4]),3)
-kable(all_betas,escape = T) %>%
-  kable_styling(position = "center")%>%
-  row_spec(which(rowSums(all_betas>0)==6), color = "red")%>%
+kable(all_betas) %>%
+kable_styling() %>%
+row_spec(which(rowSums(all_betas>0)==6), color = "red") %>%
 add_header_above(c(" ", "Occurrence" = 3, "Size" = 3))
 ```
 
