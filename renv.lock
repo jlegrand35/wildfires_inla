@@ -25,7 +25,7 @@
       "Version": "23.10.17",
       "Source": "URL",
       "RemoteType": "url",
-      "RemoteUrl": "https://inla.r-inla-download.org/R/testing/src/contrib/INLA_23.10.17.tar.gz",
+      "RemoteUrl": "https://inla.r-inla-download.org/R/testing/src/contrib/INLA_23.10.28.tar.gz",
       "Requirements": [
         "Matrix",
         "R",
