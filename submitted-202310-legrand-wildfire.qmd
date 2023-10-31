@@ -138,7 +138,7 @@ dep.coord = dep.coord[(dep.coord$INSEE_DEP %in% c("24", "33", "40", "47")),] #ex
 ```
 
 
-The meteorological data used are weather reanalysis data for variables such as temperature, precipitation, humidity and wind speed, provided by Météo France from the SAFRAN model @vidal201050. These data are then combined in order to obtain a Fire Weather Index (hereinafter FWI), a unit-less indicator of fire danger. Since the SAFRAN model is defined on a regular grid of 8km resolution, wildfire data are aggregated to the SAFRAN pixels; i.e., for each pixel-day $B$, we calculate the number of wildfire occurrences in $B$; however, we do not aggregate the marks (i.e., the burnt areas) but continue working with the observed burnt area for each of the wildfire occurrences.
+The meteorological data used are weather reanalysis data for variables such as temperature, precipitation, humidity and wind speed, provided by Météo France from the SAFRAN model [@vidal201050]. These data are then combined in order to obtain a Fire Weather Index (hereinafter FWI), a unit-less indicator of fire danger. Since the SAFRAN model is defined on a regular grid of 8km resolution, wildfire data are aggregated to the SAFRAN pixels; i.e., for each pixel-day $B$, we calculate the number of wildfire occurrences in $B$; however, we do not aggregate the marks (i.e., the burnt areas) but continue working with the observed burnt area for each of the wildfire occurrences.
 
 In the final dataset, we have for each pixel-day the corresponding daily FWI, the forest area FA (i.e. the fuel surface), the number of fires that are greater than $0.1$ hectares NB0.1 (for measurements issues) and the burnt area BA in hectares (see @tbl-dataset).
 
