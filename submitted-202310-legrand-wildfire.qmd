@@ -84,7 +84,7 @@ A fast, accurate and widely used Bayesian inference scheme when dealing with LGC
 
 The INLA-SPDE approach has been intensively applied to wildfires. For instance, @pereira2013quantification have considered the occurrences of wildfires over Portugal taking into account specific topographic and land cover covariates, along with the average precipitation prior to the fire season. @serra2014spatio modeled fire occurrences in Catalonia given the potential causes of wildfires by considering a zero-inflated Poisson model. They also took into account  topographic variables, the distance to anthropic areas and land uses. Another example is the work of @Opitz2020, who modeled wildfire occurrences in the Southeastern core area in France by including predictors related to temperature and precipitation, as well as numerous covariates based on land use and land cover.
 
-In the following, we build on the previous study of @Pimont2021 but we implement several extensions of their *Firelihood* model, a marked spatiotemporal log-Gaussian Cox process model for fire activities. Their model was initially applied in the Southeast of France where climatic conditions are sensibly different from the Aquitaine region. Note that to better account for burnt areas of extreme wildfires, @Koh2021 extended the *Firelihood* model by considering a two-component mixture model for moderate and extreme fire sizes and other improvement that we include in our model. Specifically, we will focus on using the Gamma distribution for fire sizes, which was shown to provide a good fit in the historical Southeast region in @Koh2021 without the need to construct rather complex mixture models. In @sec-data, we describe the data used in this study. @sec-model-inf presents the structure of our model and its inference using the INLA-SPDE approach. In particular, we detail a subsampling approach for occurrence observations that are zero to keep fully Bayesian inference with INLA-SPDE feasible. Then in @sec-sim, we generate wildfire activities over the historical period in order to assess the validity of our methodology. Finally, in @sec-proj, we derive future wildfire activities over the Aquitaine region under different climate scenarios.
+In the following, we build on the previous study of @Pimont2021 but we implement several extensions of their *Firelihood* model, a marked spatiotemporal log-Gaussian Cox process model for fire activities. Their model was initially applied in the Southeast of France where climatic conditions are sensibly different from the Aquitaine region. Note that to better account for burnt areas of extreme wildfires, @Koh2021 extended the *Firelihood* model by considering a two-component mixture model for moderate and extreme fire sizes and other improvements that we include in our model. Specifically, we will focus on using the Gamma distribution for fire sizes, which was shown to provide a good fit in the historical Southeast region in @Koh2021 without the need to construct rather complex mixture models. In @sec-data, we describe the data used in this study. @sec-model-inf presents the structure of our model and its inference using the INLA-SPDE approach. In particular, we detail a subsampling approach for occurrence observations that are zero to keep fully Bayesian inference with INLA-SPDE feasible. Then in @sec-sim, we generate wildfire activities over the historical period in order to assess the validity of our methodology. Finally, in @sec-proj, we derive future wildfire activities over the Aquitaine region under different climate scenarios.
 
 
 # Fire data {#sec-data}
@@ -139,7 +139,7 @@ dep.coord = dep.coord[(dep.coord$INSEE_DEP %in% c("24", "33", "40", "47")),] #ex
 ```
 
 
-The meteorological data used are weather reanalysis data for variables such as temperature, precipitation, humidity and wind speed, provided by Météo France from the SAFRAN model. These data are then combined in order to obtain a Fire Weather Index (hereinafter FWI), a unit-less indicator of fire danger. Since the SAFRAN model is defined on a regular grid of 8km resolution, wildfire data are aggregated to the SAFRAN pixels; i.e., for each pixel-day $B$, we calculate the number of wildfire occurrences $B$; however, we do not aggregate the marks (i.e., the burnt areas) but continue working with the observed burnt area for each of the wildfire occurrences.
+The meteorological data used are weather reanalysis data for variables such as temperature, precipitation, humidity and wind speed, provided by Météo France from the SAFRAN model @vidal201050. These data are then combined in order to obtain a Fire Weather Index (hereinafter FWI), a unit-less indicator of fire danger. Since the SAFRAN model is defined on a regular grid of 8km resolution, wildfire data are aggregated to the SAFRAN pixels; i.e., for each pixel-day $B$, we calculate the number of wildfire occurrences in $B$; however, we do not aggregate the marks (i.e., the burnt areas) but continue working with the observed burnt area for each of the wildfire occurrences.
 
 In the final dataset, we have for each pixel-day the corresponding daily FWI, the forest area FA (i.e. the fuel surface), the number of fires that are greater than $0.1$ hectares NB0.1 (for measurements issues) and the burnt area BA in hectares (see @tbl-dataset).
 
@@ -158,7 +158,7 @@ knitr::kable(head(DF), row.names	=F)
 ## Subsampling
 
 There are `r nrow(DF)` observations in the fire dataset, but only `r sum(DF$NB0.1)` actual wildfires.
-In order to keep the model manageable for INLA, we subsample observations with count $0$. This approach is similar to @Koh2021 and it does not biais the analysis since we reweight the Poisson intensities estimated in the model to take into account the factor by which we have subsampled. For instance, if we keep on average one in ten zeros when fitting the model, we attribute a ten times larger Poisson intensity to the zeros remaining in the observations used for estimation); this works since Poisson intensity parameters are additive under convolution of Poisson-distributed random variables.
+In order to keep the model manageable for INLA, we subsample observations with count $0$. This approach is similar to @Koh2021 and it does not bias the analysis since we reweight the Poisson intensities estimated in the model to take into account the factor by which we have subsampled. For instance, if we keep on average one in ten zeros when fitting the model, we attribute a ten times larger Poisson intensity to the zeros remaining in the observations used for estimation; this works since Poisson intensity parameters are additive under convolution of Poisson-distributed random variables.
 
 
 
@@ -196,12 +196,12 @@ rm(weights_FWI, ids2subsample, ids2keep)
 
 ## Model definition {#sec-model}
 
-In the following the occurrences and fire sizes are considered as realizations of a spatiotemporal marked point process as explained in @sec-intro.
+In the following, the occurrences and fire sizes are considered as realizations of a spatiotemporal marked point process as explained in @sec-intro.
 
 To account for the fact that the meteorological covariate FWI considered in this study is provided on a regular grid (see @sec-data), we discretize our space-time study domain $\mathcal{S}\times\mathcal{T}$ and assume that the intensity of the LGCP $\Lambda(\boldsymbol{s},t)$ is constant in each space-time cell $C_i\in\{1,\dots,M\}$, i.e.
 $$\Lambda(\boldsymbol{s},t)\equiv \Lambda_i \text{ if } (\boldsymbol{s},t)\in C_i.$$
 
-We then consider the occurrences. We model the number of fires, denoted $N_i$, in each space-time cell $C_i\in\{1,\dots,M\}$, corresponding to a SAFRAN pixel and a given day of the year. With these assumptions, the data discretized to the pixel grid are still coherent with the LGCP model introduced before, and we represent each pixel by its center coordinate
+We then consider the occurrences. We model the number of fires, denoted $N_i$, in each space-time cell $C_i\in\{1,\dots,M\}$, corresponding to a SAFRAN pixel and a given day of the year. With these assumptions, the data discretized to the pixel grid are still coherent with the LGCP model introduced before, and we represent each pixel by its center coordinate.
 
 
 In our model, we assume that for each space-time cell $C_i$, the number of fires $N_i$ is distributed according to Poisson distribution with a log-link function and a random intensity parameter, described in the following hierarchical structure with the data layer (first line), the latent process layer (second line) and the hyperparameter layer (third line):
@@ -212,7 +212,7 @@ N_i \mid \Lambda_i,\boldsymbol{\theta} \sim \text{Poisson}(w_i\Lambda_i) \\
 \end{array}$$ {#eq-inla-occ}
 
 
-The random 1-dimensional functional effects $f_{\{\text{ FWI,DOY, FA}\}}$ are defined through quadratic splines and $f_\text{Spatial}$ is a spatial field. Finally, to better capture the yearly variability in the data, we add an iid random effect $f_\text{YEAR}$.
+The random 1-dimensional functional effects $f_{\{\text{ FWI,DOY, FA}\}}$ are defined through quadratic splines, for which SPDE prior models are available, and $f_\text{Spatial}$ is a spatial field. Finally, to better capture the yearly variability in the data, we add an iid random effect $f_\text{YEAR}$.
 
 We work in a Bayesian framework, that is we put Gaussian prior distributions on all the random effects. For instance, for the function representing the effect of FWI in the predictor, we set the following prior structure:
 
@@ -239,7 +239,7 @@ $$\text{Cov}\left(f(\boldsymbol{0}),f(\boldsymbol{s})\right)=\sigma^2 2^{1-\nu}\
 with Euclidean distance $\lVert\cdot\rVert$, Gamma function $\Gamma$, modified Bessel function of the second
 kind $K_\nu$, and $\sigma,\nu>0$. In practice, we often fix $\nu=1$ (as we do here), and then approximate solutions of @eq-SPDE, having a Markov structure, are obtained using a finite element method with a triangulation of the space if $d=2$, or splines if $d=1$. Such solutions are Gaussian Markov random fields with sparse precision matrices, allowing for fast numerical calculations even in high dimension (in terms of the number of basis functions, equal to the dimension of the corresponding latent Gaussian vector).
 
-We then model the associated size components $\left(S_{i,1},\dots,S_{i,N_i}\right)$  given that $N_i>0$, considered as the marks of the point process, through a Gamma distribution. As for the occurrence model, we consider the SPDE approach for the physical predictors FA and FWI, and an iid random effect for the year. We also consider an iid random effect for each ``département'', which leads to the following model:
+We then model the associated size components $\left(S_{i,1},\dots,S_{i,N_i}\right)$  given that $N_i>0$, considered as the marks of the point process, through a Gamma distribution. As for the occurrence model, we consider the SPDE approach for the physical predictors FA and FWI, and an iid random effect for the year. We also consider an iid random effect for each ``département", which leads to the following model:
 
 $$\begin{array}{cc}
 \left(S_{i,1},\dots,S_{i,N_i}\right) \mid \alpha_i,\boldsymbol{\theta}^\text{size}, (N_i>0) \stackrel{\text{iid}}{\sim} \text{Gamma}(\alpha_i,\phi) \\
