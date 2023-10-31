@@ -441,10 +441,12 @@ plots[[5]] = ggplot()+
   scale_color_viridis(na.value = NA)+
   guides(fill = guide_colourbar(barwidth = 1,barheight = 10))
 
-do.call(grid.arrange,c(plots, list(layout_matrix=rbind(c(1, 2),c(3,4),c(5,5)),heights = c(1,1,2))))
-
+plot_effect_occ = plots 
 ```
 
+::: {#fig-posterior-mean}
+![Partial effects of the occurrence model.](computo_figures/fig-posterior-mean-1.svg)
+::: 
 
 ## Estimation of the size model
 
@@ -1420,7 +1422,7 @@ Annual means of wildfire occurrences (top-line) and sizes (bottom-line) for the 
 :::
 
 
-Looking at @fig-climate-models, the four climate models provide  substantially different results. The IPSL-CM5A and CNRM show no significant trend either for occurrences or for sizes under both scenarios. Among the two other models, MPI-ESM  shows a clearer trend: by 2100, the number of wildfire occurrences can be expected to double on average under the most pessimistic emission scenario. The associated wildfire sizes are also increasing, going from $500$ ha in 2020 to up to $1500$ ha by the end of the century. This evolution can be better measured by looking at the posterior distribution of the decadal linear effect defined in @eq-inla-proj. Summary statistics for $\beta_1$ are reported in the Appendix. Under the RCP8.5 scenario, the HadGEM-RCA4 and MPI-ESM models lead to significantly positive $\beta_1$ estimates since their $95\%$ credible intervals do not contain zero.
+Looking at @fig-climate-models, the four climate models provide  substantially different results. The IPSL-CM5A and CNRM show no significant trend either for occurrences or for sizes under both scenarios. Among the two other models, MPI-ESM  shows a clearer trend: by 2100, the number of wildfire occurrences can be expected to double on average under the most pessimistic emission scenario. The associated wildfire sizes are also increasing, going from $500$ ha in 2020 to up to $1500$ ha by the end of the century. This evolution can be better measured by looking at the posterior distribution of the decadal linear effect defined in @eq-inla-proj. Summary statistics for $\beta_1$ are reported in the Appendix A. Under the RCP8.5 scenario, the HadGEM-RCA4 and MPI-ESM models lead to significantly positive $\beta_1$ estimates since their $95\%$ credible intervals do not contain zero.
 
 To capture potential spatial variability of projected wildfire activities, we also considered the spatial aggregation of the simulated occurrences and sizes during the end of the projection period (2070–2100), results are depicted in @fig-climate-models-map.
 
@@ -1571,7 +1573,7 @@ We want to emphasize that our modeling approach for spatiotemporal marked point 
 
 
 
-# Appendix {.unnumbered}
+# Appendix A {.appendix}
 
 Estimates of $\beta_1$ as defined in @eq-inla-proj are depicted in the folowing table, highlighting for which climate model there is a positive trend in wildfire activities (in red).
 
@@ -1589,6 +1591,15 @@ kable_styling() %>%
 row_spec(which(rowSums(all_betas>0)==6), color = "red") %>%
 add_header_above(c(" ", "Occurrence" = 3, "Size" = 3))
 ```
+
+# Appendix B {.unnumbered}
+
+```{r warning=F, message=F}
+#| fig-cap: "Partial effects of the occurrence model with the simulated data." 
+
+do.call(grid.arrange,c(plot_effect_occ, list(layout_matrix=rbind(c(1, 2),c(3,4),c(5,5)),heights = c(1,1,2))))
+```
+
 
 # Ackowledgments {.unnumbered}
 
