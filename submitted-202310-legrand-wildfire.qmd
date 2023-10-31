@@ -32,7 +32,6 @@ repo: "wildfires_inla"
 draft: true # set to false once the build is running
 published: false # will be set to true once accepted
 format:
-  computo-html: default
   computo-pdf: default
 ---
 
