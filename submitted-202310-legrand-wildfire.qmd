@@ -378,7 +378,7 @@ From @fig-posterior-mean, we can conclude that the yearly effect captures an int
 
 ```{r warning=F, message=F}
 #| label: fig-posterior-mean
-#| fig-cap: "Partial effects of the occurrence model."
+#| fig-cap: "Partial effects of the occurrence model with the simulated data." 
 
 plots = list()
 #yearly effect
@@ -442,11 +442,10 @@ plots[[5]] = ggplot()+
   guides(fill = guide_colourbar(barwidth = 1,barheight = 10))
 
 plot_effect_occ = plots 
+
+do.call(grid.arrange,c(plot_effect_occ, list(layout_matrix=rbind(c(1, 2),c(3,4),c(5,5)),heights = c(1,1,2))))
 ```
 
-::: {#fig-posterior-mean}
-![Partial effects of the occurrence model.](computo_figures/fig-posterior-mean-1.svg)
-::: 
 
 ## Estimation of the size model
 
@@ -537,9 +536,12 @@ for(i in 1:length(names_effect)){
     labs( y = 'Linear predictor', x = eff)+
     theme_bw()
 }
+
+plot_effect_size = plots 
+
 if (any(str_detect(names(fit.size$summary.random),"DEP"))){
-  do.call(grid.arrange,c(plots, list(layout_matrix=rbind(c(1, 3,4),c(2,2,2)),heights = c(0.7,0.8))))
-} else {do.call(grid.arrange,c(plots,list(nrow=1)))}
+  do.call(grid.arrange,c(plot_effect_size, list(layout_matrix=rbind(c(1, 3,4),c(2,2,2)),heights = c(0.7,0.8))))
+} else {do.call(grid.arrange,c(plot_effect_size,list(nrow=1)))}
 ```
 
 
@@ -638,18 +640,17 @@ l=list(Liste_occur=Liste_occur,nsim=nsim)
 
 
 ```{r, echo =F, fig.width=10,fig.height=6}
-#| label: fig-res-occ
-#| fig-cap: "top: Spatial patterns of observed wildfire occurrences (left) and simulated occurrences (right). bottom: Simulated wildfire occurrences with $95\\%$ pointwise confidence intervals (in red) and observations (black dots)."
 
 aggr.tot = aggregate(.~PIX, projDF[,c('PIX','NB0.1','lambda')], FUN = sum)
 upper.bound = round(max(c(aggr.tot$NB0.1))) + 1
 idx_safran =  match(aggr.tot$PIX,coord$N_SAFRAN)
 
+plots = c()
 
 data = rbind(data.frame("NB"=aggr.tot$NB0.1,lab = 'Observations'),data.frame("NB"=aggr.tot$lambda,lab="Simulations"))
 data$XL2e = rep(coord$XL2e[idx_safran],2)
 data$YL2e = rep(coord$YL2e[idx_safran],2)
-p1 = ggplot(data)+
+plots[[1]] = ggplot(data)+
   geom_point(aes(x=XL2e,y=YL2e,
                 color = NB),size=3,shape=15)+
   facet_wrap(~lab)+
@@ -684,7 +685,7 @@ for (i in 1:nsim){
 NB.aggr$Mean = apply(NB.aggr[,-c(1,2)],FUN = mean,MARGIN = 1)
 NB.aggr$Q025 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.025,MARGIN = 1)
 NB.aggr$Q0975 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.975,MARGIN = 1)
-p3 = ggplot(data = NB.aggr)+
+plots[[2]] = ggplot(data = NB.aggr)+
   geom_point(aes(x=YEAR,y=Obs))+
   geom_line(aes(x=YEAR,y=Mean),color='red')+
    geom_ribbon(aes(x=YEAR, ymin=Q025,ymax=Q0975),fill="red", alpha=0.2) +
@@ -710,7 +711,7 @@ for (i in 1:nsim){
 NB.aggr$Mean = apply(NB.aggr[,-c(1,2)],FUN = mean,MARGIN = 1)
 NB.aggr$Q025 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.025,MARGIN = 1)
 NB.aggr$Q0975 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.975,MARGIN = 1)
-p4 = ggplot(data = NB.aggr)+
+plots[[3]] = ggplot(data = NB.aggr)+
   geom_point(aes(x=DOY,y=Obs))+
   geom_line(aes(x=DOY,y=Mean),color='red')+
    geom_ribbon(aes(x=DOY, ymin=Q025,ymax=Q0975),fill="red", alpha=0.2) +
@@ -731,15 +732,21 @@ for (i in 1:nsim){
 NB.aggr$Mean = apply(NB.aggr[,-c(1,2)],FUN = mean,MARGIN = 1)
 NB.aggr$Q025 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.025,MARGIN = 1)
 NB.aggr$Q0975 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.975,MARGIN = 1)
-p5 = ggplot(data = NB.aggr)+
+plots[[4]] = ggplot(data = NB.aggr)+
   geom_point(aes(x=Week,y=Obs))+
   geom_line(aes(x=Week,y=Mean),color='red')+
    geom_ribbon(aes(x=Week, ymin=Q025,ymax=Q0975),fill="red", alpha=0.2) +
   labs( y = 'Number of fires > 0.1 ha', x = 'Week of the year',title = paste('Year',year))+
   theme_bw()
 
-grid.arrange(p1,p3,p4,p5, ncol=3, nrow = 2,layout_matrix=rbind(c(1,1,1),c(2,3,4)),heights=c(1.5,1))
+plot_simulated_occ = plots
 ```
+
+::: {#fig-res-occ}
+![](computo_figures/fig-res-occ-1.png)
+
+top: Spatial patterns of observed wildfire occurrences (left) and simulated occurrences (right). bottom: Simulated wildfire occurrences with $95\\%$ pointwise confidence intervals (in red) and observations (black dots).
+::: 
 
 @fig-res-occ highlights that the model successfully recovers both the spatial and temporal pattern of fire occurrences. Almost all observations are within the uncertainty bands of the posterior model. The temporal aggregations also highlights the temporal trends and stochasticity of wildfire regimes, with for instance a stronger fire activity at the end of August.
 
@@ -820,6 +827,8 @@ l.size = list(Liste_occur=Liste_occur,nsim=nsim)
 
 
 ```{r, echo = F}
+plots = c()
+
 df = projDF
 nsim = l.size$nsim
 BA.aggr.ori = data.frame(matrix(0,nrow = length(unique(df$YEAR)), ncol=nsim+2))
@@ -837,7 +846,7 @@ BA.aggr.ori$Q025 = apply(BA.aggr.ori[,-c(1,2)],FUN = quantile,probs=0.025,
                          MARGIN = 1)
 BA.aggr.ori$Q0975 = apply(BA.aggr.ori[,-c(1,2)],FUN = quantile,probs=0.975,
                           MARGIN = 1)
-p2 = ggplot(data = BA.aggr.ori)+
+plots[[2]] = ggplot(data = BA.aggr.ori)+
   geom_point(aes(x=YEAR,y=Obs))+
   geom_line(aes(x=YEAR,y=Mean),color='red')+
    geom_ribbon(aes(x=YEAR, ymin=Q025,ymax=Q0975),fill="red", alpha=0.2) +
@@ -847,8 +856,6 @@ p2 = ggplot(data = BA.aggr.ori)+
 ```
 
 ```{r, echo =F,fig.width=10,fig.height=6}
-#| label: fig-res-sizes
-#| fig-cap: "top: Spatial patterns of observed wildfire sizes (left) and simulated sizes (right). bottom: Simulated wildfire sizes with $95\\%$ pointwise confidence intervals (in red) and observations (black dots)."
 
 missing.pix = coord[coord$N_SAFRAN %in% setdiff(unique(DF$PIX),unique(DFsize$PIX)),'N_SAFRAN']
 # We add the missing pixels by setting BA = 0 for such pixels
@@ -872,7 +879,7 @@ data = rbind(data.frame(BA.aggr,lab = 'Observations'),data.frame("PIX"=BA.aggr$P
 data$XL2e = rep(coord.plot[,1],2)
 data$YL2e = rep(coord.plot[,2],2)
 
-p1 = ggplot(data)+
+plots[[1]] = ggplot(data)+
   geom_point(aes(x=XL2e,y=YL2e,
                 color = cut(BA, breaks= c(0,2,5,15,50,175,350,max(BA)),include.lowest=TRUE)),size=3,shape=15)+
   facet_wrap(~lab)+
@@ -896,62 +903,7 @@ p1 = ggplot(data)+
 
 # Occurrences given threshold on BA: Weekly aggregation for one specific year
 year = 2010 #can be changed for another year
-thresh = 0.3
-df = DFsize[DFsize$BA >= thresh,]
-df$Week = (df$DOY %/% 7) + 1
-df = df[df$YEAR == year,]
 
-NB.aggr = data.frame(matrix(0,nrow = length(22:45), ncol = nsim + 2))
-names(NB.aggr) = c('Week','Obs', paste0('sim',1:nsim) )
-NB.aggr$Week = 22:45
-aggr = aggregate(.~Week,df[,c('Week','NB0.1')],FUN=sum)
-NB.aggr$Obs[match(aggr$Week,NB.aggr$Week)] = aggr$NB0.1
-
-for (i in 1:nsim){
-  df_i = l.size$Liste_occur[[i]][l.size$Liste_occur[[i]]$YEAR == year,]
-  df_i$Week = (df_i$DOY %/% 7) + 1
-  aggr_i = aggregate(.~Week,df_i[,c('Week','N03_sim')],FUN=sum)
-  aggr_i = aggr_i[order(aggr_i$Week),]
-  NB.aggr[match(aggr_i$Week, NB.aggr$Week), i+2] = aggr_i$N03_sim
-}
-NB.aggr$Mean = apply(NB.aggr[,-c(1,2)],FUN = mean,MARGIN = 1)
-NB.aggr$Q025 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.025,MARGIN = 1)
-NB.aggr$Q0975 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.975,MARGIN = 1)
-p3 = ggplot(data = NB.aggr)+
-  geom_point(aes(x=Week,y=Obs))+
-  geom_line(aes(x=Week,y=Mean),color='red')+
-   geom_ribbon(aes(x=Week, ymin=Q025,ymax=Q0975),fill="red", alpha=0.2) +
-  labs( y = 'Number of fires > 0.3 ha', x = 'Week of the year',title = paste('Year',year))+
-  theme_bw()
-
-###
-thresh = 0.5
-df = DFsize[DFsize$BA >= thresh,]
-df$Week = (df$DOY %/% 7) + 1
-df = df[df$YEAR == year,]
-NB.aggr = data.frame(matrix(0,nrow = length(22:45), ncol = nsim + 2))
-names(NB.aggr) = c('Week','Obs', paste0('sim',1:nsim) )
-NB.aggr$Week = 22:45
-aggr = aggregate(.~Week,df[,c('Week','NB0.1')],FUN=sum)
-NB.aggr$Obs[match(aggr$Week,NB.aggr$Week)] = aggr$NB0.1
-for (i in 1:nsim){
-  df_i = l.size$Liste_occur[[i]][l.size$Liste_occur[[i]]$YEAR == year,]
-  df_i$Week = (df_i$DOY %/% 7) + 1
-  aggr_i = aggregate(.~Week,df_i[,c('Week','N05_sim')],FUN=sum)
-  aggr_i = aggr_i[order(aggr_i$Week),]
-  NB.aggr[match(aggr_i$Week, NB.aggr$Week), i+2] = aggr_i$N05_sim
-}
-NB.aggr$Mean = apply(NB.aggr[,-c(1,2)],FUN = mean,MARGIN = 1)
-NB.aggr$Q025 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.025,MARGIN = 1)
-NB.aggr$Q0975 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.975,MARGIN = 1)
-p4 = ggplot(data = NB.aggr)+
-  geom_point(aes(x=Week,y=Obs))+
-  geom_line(aes(x=Week,y=Mean),color='red')+
-   geom_ribbon(aes(x=Week, ymin=Q025,ymax=Q0975),fill="red", alpha=0.2) +
-  labs( y = 'Number of fires > 0.5 ha', x = 'Week of the year',title = paste('Year',year))+
-  theme_bw()
-
-###
 thresh = 1
 df = DFsize[DFsize$BA >= thresh,]
 df$Week = (df$DOY %/% 7) + 1
@@ -971,7 +923,7 @@ for (i in 1:nsim){
 NB.aggr$Mean = apply(NB.aggr[,-c(1,2)],FUN = mean,MARGIN = 1)
 NB.aggr$Q025 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.025,MARGIN = 1)
 NB.aggr$Q0975 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.975,MARGIN = 1)
-p5 = ggplot(data = NB.aggr)+
+plots[[3]] = ggplot(data = NB.aggr)+
   geom_point(aes(x=Week,y=Obs))+
   geom_line(aes(x=Week,y=Mean),color='red')+
    geom_ribbon(aes(x=Week, ymin=Q025,ymax=Q0975),fill="red", alpha=0.2) +
@@ -1000,17 +952,24 @@ for (i in 1:nsim){
 NB.aggr$Mean = apply(NB.aggr[,-c(1,2)],FUN = mean,MARGIN = 1)
 NB.aggr$Q025 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.025,MARGIN = 1)
 NB.aggr$Q0975 = apply(NB.aggr[,-c(1,2)],FUN = quantile,probs=0.975,MARGIN = 1)
-p6 = ggplot(data = NB.aggr)+
+plots[[4]] = ggplot(data = NB.aggr)+
   geom_point(aes(x=Week,y=Obs))+
   geom_line(aes(x=Week,y=Mean),color='red')+
    geom_ribbon(aes(x=Week, ymin=Q025,ymax=Q0975),fill="red", alpha=0.2) +
   labs( y = 'Number of fires > 10 ha', x = 'Week of the year',title = paste('Year',year))+
   theme_bw()
 
-grid.arrange(p1,p2,p5,p6,ncol=3,nrow=2,
-             layout_matrix=rbind(c(1, 1,1),c(2,3,4)),heights=c(1.5,1))
+plot_simulated_size = plots
 
 ```
+
+
+::: {#fig-res-sizes}
+![](computo_figures/fig-res-sizes-1.png)
+
+top: Spatial patterns of observed wildfire sizes (left) and simulated sizes (right). bottom: Simulated wildfire sizes with $95\\%$ pointwise confidence intervals (in red) and observations (black dots).
+::: 
+
 
 The size simulations depicted in @fig-res-sizes show that the model successfully recovers the spatial pattern but misses some of the the most extreme values in terms of coverage of pointwise credible intervals. Unlike the fire occurrences, the distribution of burnt areas is heavy-tailed and more difficult to predict. Still, looking at the temporal aggregation the simulations provide satisfying results and almost all observations are within the uncertainty bands. We note that for the largest fires (i.e. greater than $10$ ha), the sample size being much smaller, the uncertainties are larger.
 
@@ -1573,7 +1532,7 @@ We want to emphasize that our modeling approach for spatiotemporal marked point 
 
 
 
-# Appendix A {.appendix}
+# Appendix A {.unnumbered}
 
 Estimates of $\beta_1$ as defined in @eq-inla-proj are depicted in the folowing table, highlighting for which climate model there is a positive trend in wildfire activities (in red).
 
@@ -1594,11 +1553,23 @@ add_header_above(c(" ", "Occurrence" = 3, "Size" = 3))
 
 # Appendix B {.unnumbered}
 
-```{r warning=F, message=F}
-#| fig-cap: "Partial effects of the occurrence model with the simulated data." 
 
-do.call(grid.arrange,c(plot_effect_occ, list(layout_matrix=rbind(c(1, 2),c(3,4),c(5,5)),heights = c(1,1,2))))
+```{r, echo =F, fig.width=10,fig.height=6}
+#| label: fig-res-occ-sim
+#| fig-cap: "top: Spatial patterns of observed wildfire occurrences (left) and simulated occurrences (right). bottom: Simulated wildfire occurrences with $95\\%$ pointwise confidence intervals (in red) and observations (black dots)."
+
+do.call(grid.arrange,c(plot_simulated_occ, list(layout_matrix=rbind(c(1,1,1),c(2,3,4)),heights = c(1.5,1), ncol=3, nrow=2)))
+
 ```
+
+
+```{r, echo =F,fig.width=10,fig.height=6}
+#| label: fig-res-sizes-sim
+#| fig-cap: "top: Spatial patterns of observed wildfire sizes (left) and simulated sizes (right). bottom: Simulated wildfire sizes with $95\\%$ pointwise confidence intervals (in red) and observations (black dots)."
+
+do.call(grid.arrange,c(plot_simulated_size, list(layout_matrix=rbind(c(1,1,1),c(2,3,4)),heights = c(1.5,1), ncol=3, nrow=2)))
+```
+
 
 
 # Ackowledgments {.unnumbered}
