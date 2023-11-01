@@ -73,7 +73,7 @@ As recently experienced in France during summer 2022, wildfires constitute a maj
 
 
 More specifically, each wildfire can be characterized in space and time, for instance by its location $\boldsymbol{s}$ and time $t$ of ignition where $\{\boldsymbol{s}\in\mathcal{S},t\in\mathcal{T}\}$ would correspond to the space-time study domain. Doing so, wildfire occurrences can be seen as the realization of a spatiotemporal point process, a stochastic model for the occurrences of space-time events. Moreover, each point of this spatiotemporal point process can be associated with a numerical information, such as the burnt area of the corresponding fire. Adding this random quantitative mark, the spatiotemporal pattern of wildfire occurrences and sizes can be viewed as a marked spatiotemporal point process. That is, there exists a random measure $N$ that counts the number of points in Borel sets $B\subset \mathcal{S}\times\mathcal{T}$ with intensity function $\Lambda(\boldsymbol{s},t)$ determining the expected number of points in any set $B$, i.e. $$\mathbb{E}\left[N(B)\mid \{\Lambda(\boldsymbol{s},t)\}_{\boldsymbol{s}\in\mathcal{S},t\in\mathcal{T}}\right]=\int_B\Lambda(\boldsymbol{s},t)d(\boldsymbol{s},t).$$
-In this study, we will consider such marked spatiotemporal point processes where the occurrences of wildfires are the points of the process and the burnt area the associated marks. But note that other quantitative marks have been considered in the wildfire risk literature, such as the duration of the fire [e.g. @Quinlan2021].
+In this study, we will consider such marked spatiotemporal point processes where the occurrences of wildfires are the points of the process and the burnt area the associated marks. But note that other quantitative marks have been considered in the wildfire risk literature, such as the duration of the wildfire [e.g. @Quinlan2021].
 
 In addition, we will assume that $N$ conditionally on $\Lambda$  is a Poisson point process with intensity function $\Lambda(\boldsymbol{s},t)$, meaning that $$N(B)\mid \{\Lambda(\boldsymbol{s},t)\}_{\boldsymbol{s}\in\mathcal{S},t\in\mathcal{T}}\sim \text{Poisson}\left(\int_B\Lambda(\boldsymbol{s},t)d(\boldsymbol{s},t)\right)$$ and for any disjoint Borel sets $B_1,B_2\subset\mathcal{S}\times\mathcal{T}$, $N(B_1)$ and $N(B_2)$ are independent conditionally on $\{\Lambda(\boldsymbol{s},t)\}_{\boldsymbol{s}\in\mathcal{S},t\in\mathcal{T}}$.
 
@@ -81,12 +81,12 @@ Within a Bayesian modelling framework, it then appears natural to consider log-G
 
 A fast, accurate and widely used Bayesian inference scheme when dealing with LGCPs is the integrated nested Laplace approximation framework [INLA, @Rue2009; @Illian2012], which astutely exploits Laplace approximations [@Tierney1986Laplace] and has proven to be computationally faster than simulation-based methods such as Markov chain Monte Carlo (MCMC) [e.g. @Taylor2014].  INLA allows estimating Bayesian hierarchical models and assumes that the latent structure of the model is a Gaussian Markov random field (GMRF), which means that the precision matrix (i.e., the inverse of the variance-covariance matrix) is sparse and therefore allows for fast computations even with high-dimensional Gaussian vectors with up to tens of thousands of latent variables. The stochastic partial differential equation (SPDE) approach is then often combined with INLA (providing the so-called INLA-SPDE approach) in order to approximate Gaussian random fields with Matérn covariance by GMRFs with sparse precision matrix [@Lindgren2011SPDE]. 
 
-The INLA-SPDE approach has been intensively applied to wildfires. For instance, @pereira2013quantification have considered the occurrences of wildfires over Portugal taking into account specific topographic and land cover covariates, along with the average precipitation prior to the fire season. @serra2014spatio modeled fire occurrences in Catalonia given the potential causes of wildfires by considering a zero-inflated Poisson model. They also took into account  topographic variables, the distance to anthropic areas and land uses. Another example is the work of @Opitz2020, who modeled wildfire occurrences in the Southeastern core area in France by including predictors related to temperature and precipitation, as well as numerous covariates based on land use and land cover.
+The INLA-SPDE approach has been intensively applied to wildfires. For instance, @pereira2013quantification have considered the occurrences of wildfires over Portugal taking into account specific topographic and land cover covariates, along with the average precipitation prior to the fire season. @serra2014spatio modeled wildfire occurrences in Catalonia given the potential causes of wildfires by considering a zero-inflated Poisson model. They also took into account  topographic variables, the distance to anthropic areas and land uses. Another example is the work of @Opitz2020, who modeled wildfire occurrences in the Southeastern core area in France by including predictors related to temperature and precipitation, as well as numerous covariates based on land use and land cover.
 
-In the following, we build on the previous study of @Pimont2021 but we implement several extensions of their *Firelihood* model, a marked spatiotemporal log-Gaussian Cox process model for fire activities. Their model was initially applied in the Southeast of France where climatic conditions are sensibly different from the Aquitaine region. Note that to better account for burnt areas of extreme wildfires, @Koh2021 extended the *Firelihood* model by considering a two-component mixture model for moderate and extreme fire sizes and other improvements that we include in our model. Specifically, we will focus on using the Gamma distribution for fire sizes, which was shown to provide a good fit in the historical Southeast region in @Koh2021 without the need to construct rather complex mixture models. In @sec-data, we describe the data used in this study. @sec-model-inf presents the structure of our model and its inference using the INLA-SPDE approach. In particular, we detail a subsampling approach for occurrence observations that are zero to keep fully Bayesian inference with INLA-SPDE feasible. Then in @sec-sim, we generate wildfire activities over the historical period in order to assess the validity of our methodology. Finally, in @sec-proj, we derive future wildfire activities over the Aquitaine region under different climate scenarios.
+In the following, we build on the previous study of @Pimont2021 but we implement several extensions of their *Firelihood* model, a marked spatiotemporal log-Gaussian Cox process model for wildfire activities. Their model was initially applied in the Southeast of France where climatic conditions are sensibly different from the Aquitaine region. Note that to better account for burnt areas of extreme wildfires, @Koh2021 extended the *Firelihood* model by considering a two-component mixture model for moderate and extreme wildfire sizes and other improvements that we include in our model. Specifically, we will focus on using the Gamma distribution for wildfire sizes, which was shown to provide a good fit in the historical Southeast region in @Koh2021 without the need to construct rather complex mixture models. In @sec-data, we describe the data used in this study. @sec-model-inf presents the structure of our model and its inference using the INLA-SPDE approach. In particular, we detail a subsampling approach for occurrence observations that are zero to keep fully Bayesian inference with INLA-SPDE feasible. Then in @sec-sim, we generate wildfire activities over the historical period in order to assess the validity of our methodology. Finally, in @sec-proj, we derive future wildfire activities over the Aquitaine region under different climate scenarios.
 
 
-# Fire data {#sec-data}
+# Wildfire data {#sec-data}
 
 The wildfire data considered in this study are partially provided by the [BDIFF](https://bdiff.agriculture.gouv.fr/) database which collects information on wildfires since 2006 on the whole French territory but for which no stochastic models similar to Firelihood have been developed so far. Since BDIFF data are known to show some gaps, they have been completed with those from a public-private network working on territorial risk management (GIP ATGeRi). We extracted data from 2006 to 2020 in the former administrative Aquitaine region, corresponding to four French ``départements" Dordogne, Gironde, Landes and Lot-et-Garonne (see the left display in @fig-data). Due to meteorological factors and specific human activities (agriculture, tourism), winter and summer wildfires correspond to two different fire regimes. Therefore, in this study, we focus on the summer wildfires, which are more numerous and on average also much bigger in terms of size, and we keep only wildfires that have occurred between May to October.
 
@@ -96,7 +96,7 @@ The wildfire data considered in this study are partially provided by the [BDIFF]
 
 ![Spatial footprint of FWI observed on July 4, 2011 ](computo_figures/FWI_map.png){#fig-FWI-plot widht=10%}
 
-Maps of fire activity during the observation period and spatial variability of the Fire Weather Index (FWI), which is commonly used to aggregate the meteorological fire drivers into a single variable, for a given day.
+Maps of wildfire activity during the observation period and spatial variability of the Fire Weather Index (FWI), which is commonly used to aggregate the meteorological fire drivers into a single variable, for a given day.
 :::
 
 
@@ -146,7 +146,7 @@ In the final dataset, we have for each pixel-day the corresponding daily FWI, th
 
 ```{r, echo = F}
 #| label: tbl-dataset
-#| tbl-cap: First lines of the fire dataset.
+#| tbl-cap: First lines of the wildfire dataset.
 knitr::kable(head(DF), row.names	=F)
 ```
 
@@ -156,7 +156,7 @@ knitr::kable(head(DF), row.names	=F)
 
 ## Subsampling
 
-There are `r nrow(DF)` observations in the fire dataset, but only `r sum(DF$NB0.1)` actual wildfires.
+There are `r nrow(DF)` observations in the wildfire dataset, but only `r sum(DF$NB0.1)` actual wildfires.
 In order to keep the model manageable for INLA, we subsample observations with count $0$. This approach is similar to @Koh2021 and it does not bias the analysis since we reweight the Poisson intensities estimated in the model to take into account the factor by which we have subsampled. For instance, if we keep on average one in ten zeros when fitting the model, we attribute a ten times larger Poisson intensity to the zeros remaining in the observations used for estimation; this works since Poisson intensity parameters are additive under convolution of Poisson-distributed random variables.
 
 
@@ -195,7 +195,7 @@ rm(weights_FWI, ids2subsample, ids2keep)
 
 ## Model definition {#sec-model}
 
-In the following, the occurrences and fire sizes are considered as realizations of a spatiotemporal marked point process as explained in @sec-intro.
+In the following, the occurrences and wildfire sizes are considered as realizations of a spatiotemporal marked point process as explained in @sec-intro.
 
 To account for the fact that the meteorological covariate FWI considered in this study is provided on a regular grid (see @sec-data), we discretize our space-time study domain $\mathcal{S}\times\mathcal{T}$ and assume that the intensity of the LGCP $\Lambda(\boldsymbol{s},t)$ is constant in each space-time cell $C_i\in\{1,\dots,M\}$, i.e.
 $$\Lambda(\boldsymbol{s},t)\equiv \Lambda_i \text{ if } (\boldsymbol{s},t)\in C_i.$$
@@ -549,13 +549,13 @@ if (any(str_detect(names(fit.size$summary.random),"DEP"))){
 
 Before applying the fitted model to climate projections, we wish to assess the validity of our model. We here focus on the capacity of the model to reproduce the observed wildfires during the study period (2006-2020) with appropriate posterior uncertainty. R-INLA implements a method to obtain independent samples from the posterior distributions of hyperparameters and latent Gaussian variables, which can then be combined with new covariate data to calculate Monte-Carlo estimations of any posterior quantity of interest.
 
-
+Note that the following results correspond to simulations obtained from the original data, which are not made available to reproduce the study. See Appendix B for more details.
 
 ## Occurrence component
 
 For the occurrence model, we first have to sample from the posterior distribution of all the coefficients in the occurrence model and then combine them with new effect values, using the additivity of @eq-matrices.
 
-Hereinafter, we perform $n=100$ simulations and results are depicted in @fig-res-occ. The top line panels depict the spatial patterns of observed and simulated fire occurrences. In the bottom line, the yearly aggregated occurrences are shown on the left. Then, we looked for a specific year the daily and weekly aggregation (middle and right panels) of simulated fire occurrences. We chose to examine the year $2010$, but any other year could have been considered.
+Hereinafter, we perform $n=100$ simulations and results are depicted in @fig-res-occ. The top line panels depict the spatial patterns of observed and simulated wildfire occurrences. In the bottom line, the yearly aggregated occurrences are shown on the left. Then, we looked for a specific year the daily and weekly aggregation (middle and right panels) of simulated wildfire occurrences. We chose to examine the year $2010$, but any other year could have been considered.
 
 
 ```{r, echo =F}
@@ -748,12 +748,12 @@ plot_simulated_occ = plots
 top: Spatial patterns of observed wildfire occurrences (left) and simulated occurrences (right). bottom: Simulated wildfire occurrences with $95\%$ pointwise confidence intervals (in red) and observations (black dots).
 ::: 
 
-@fig-res-occ highlights that the model successfully recovers both the spatial and temporal pattern of fire occurrences. Almost all observations are within the uncertainty bands of the posterior model. The temporal aggregations also highlights the temporal trends and stochasticity of wildfire regimes, with for instance a stronger fire activity at the end of August.
+@fig-res-occ highlights that the model successfully recovers both the spatial and temporal pattern of wildfire occurrences. Almost all observations are within the uncertainty bands of the posterior model. The temporal aggregations also highlights the temporal trends and stochasticity of wildfire regimes, with for instance a stronger wildfire activity at the end of August.
 
 
 ## Size component {#sec-sim-sizes}
 
-As for the occurrence model, we illustrate the applicability of our model through simulations and compare the simulated sizes with the historical data (see @fig-res-sizes). The simulation scheme is as follows: for each of the $100$ previously simulated samples of fire occurrences, we generate the associated sizes by sampling the posterior distributions of the fitted size model effects and use the additivity of the linear predictor as defined in @eq-size-model.
+As for the occurrence model, we illustrate the applicability of our model through simulations and compare the simulated sizes with the historical data (see @fig-res-sizes). The simulation scheme is as follows: for each of the $100$ previously simulated samples of wildfire occurrences, we generate the associated sizes by sampling the posterior distributions of the fitted size model effects and use the additivity of the linear predictor as defined in @eq-size-model.
 
 Simulations are presented in @fig-res-sizes. Again, the spatial aggregation is shown in the top line panels. The yearly aggregated burnt areas are depicted in the bottom-left panel. Finally, the middle and right panels in the bottom line depict the weekly aggregated occurrences of fires greater than $1$ ha and $10$ ha respectively.
 
@@ -971,7 +971,7 @@ top: Spatial patterns of observed wildfire sizes (left) and simulated sizes (rig
 ::: 
 
 
-The size simulations depicted in @fig-res-sizes show that the model successfully recovers the spatial pattern but misses some of the the most extreme values in terms of coverage of pointwise credible intervals. Unlike the fire occurrences, the distribution of burnt areas is heavy-tailed and more difficult to predict. Still, looking at the temporal aggregation the simulations provide satisfying results and almost all observations are within the uncertainty bands. We note that for the largest fires (i.e. greater than $10$ ha), the sample size being much smaller, the uncertainties are larger.
+The size simulations depicted in @fig-res-sizes show that the model successfully recovers the spatial pattern but misses some of the the most extreme values in terms of coverage of pointwise credible intervals. Unlike the wildfire occurrences, the distribution of burnt areas is heavy-tailed and more difficult to predict. Still, looking at the temporal aggregation the simulations provide satisfying results and almost all observations are within the uncertainty bands. We note that for the largest fires (i.e. greater than $10$ ha), the sample size being much smaller, the uncertainties are larger.
 
 
 
@@ -1511,9 +1511,9 @@ grid.arrange(p1,p2,nrow=1,widths=c(1,2.5))
 Spatial patterns of wildfire activity during the end of the projection period (2070–2100) for each climate models and associated climate scenarios. Values correspond to the mean values over the period and are compared to the mean values during the observation period (2006-2020) displayed on the left-hand side.
 :::
 
-From @fig-occ-proj, it can be seen that the spatial pattern of fire occurrences will remain essentially the same, but the intensities within each pixel may change. Under the scenario RCP $4.5$ most models show no strong significant increasing trend. However, under the pessimistic scenario RCP $8.5$, MPI-ESM model seems to predict a substantial increase in fire activities. To a lesser extent, a similar observation can be made for models CNRM and HadGEM2.
+From @fig-occ-proj, it can be seen that the spatial pattern of wildfire occurrences will remain essentially the same, but the intensities within each pixel may change. Under the scenario RCP $4.5$ most models show no strong significant increasing trend. However, under the pessimistic scenario RCP $8.5$, MPI-ESM model seems to predict a substantial increase in wildfire activities. To a lesser extent, a similar observation can be made for models CNRM and HadGEM2.
 
-Looking at the projected burnt areas [@fig-size-proj], similarly to the simulations performed over the observation period in @sec-sim-sizes, predictions are quite noisy which we attribute to the fact that burnt areas are relatively heavy-tailed, such that a relatively small number of values can have a relatively strong influence on the calculation of the mean. But again, under the scenario RCP $8.5$, MPI-ESM model shows a significant increase in the average annual fire size compared to the observation period.
+Looking at the projected burnt areas [@fig-size-proj], similarly to the simulations performed over the observation period in @sec-sim-sizes, predictions are quite noisy which we attribute to the fact that burnt areas are relatively heavy-tailed, such that a relatively small number of values can have a relatively strong influence on the calculation of the mean. But again, under the scenario RCP $8.5$, MPI-ESM model shows a significant increase in the average annual wildfire size compared to the observation period.
 
 These experiments seem to indicate that for the Aquitaine region the climate-related vulnerability of forests to wildfires could increase to a lesser extent in the future than in the historical core wildfire area in the Southeastern France.
 
@@ -1522,7 +1522,7 @@ These experiments seem to indicate that for the Aquitaine region the climate-rel
 
 
 
-A first remark should be made concerning the most recent wildfire events: as the 2022 weather data are not yet available, the 2022 summer fire season was not considered in this study. Therefore, the projections obtained above do not take into account the relatively extreme fire activities with several very large fires that have been observed in the Western part of France during this period, and the resulting projections could potentially have been more pessimistic in terms of the future increase of wildfire risk in the study region. The results we obtain point towards an increase in future wildfire risk. However, the uncertainty about the future climate remains large and propagates through to projected wildfire risk. Indeed, the weather simulations of the four climate models considered here lead to clearly significant increases only in some cases for rather pessimistic scenarios of greenhouse gas emissions.
+A first remark should be made concerning the most recent wildfire events: as the 2022 weather data are not yet available, the 2022 summer fire season was not considered in this study. Therefore, the projections obtained above do not take into account the relatively extreme wildfire activities with several very large fires that have been observed in the Western part of France during this period, and the resulting projections could potentially have been more pessimistic in terms of the future increase of wildfire risk in the study region. The results we obtain point towards an increase in future wildfire risk. However, the uncertainty about the future climate remains large and propagates through to projected wildfire risk. Indeed, the weather simulations of the four climate models considered here lead to clearly significant increases only in some cases for rather pessimistic scenarios of greenhouse gas emissions.
 
 This work presented a step-by-step methodology for the modelling of spatiotemporal marked point processes, that has been applied to the modelling of wildfire activities in the Southwest region of France. Due to the high stochasticity involved in wildfire activity but also in climate-change projections, and due to the complex processes and data that have to be modeled, Bayesian hierarchical modeling provides an appropriate framework for including various observed predictors and random effects into a model that allows for accurate predictions with precise uncertainty assessment. Our model includes additive random effects for various components of the linear predictors, such as nonlinear effects of continuous covariates, spatial random effects and temporal random effects. The SPDE approach provides flexible Gaussian prior distributions for such effects with two hyperparameters for the variance and the correlation range, and the INLA method allows for fast and reliable Bayesian inference even with complex and high-dimensional structures of the latent linear predictor and the likelihood model of the data.
 
@@ -1553,6 +1553,9 @@ add_header_above(c(" ", "Occurrence" = 3, "Size" = 3))
 
 # Appendix B {.unnumbered}
 
+The results depicted in Figures @fig-res-occ and @fig-res-sizes are obtained with the original wildfire data. Since these data are confidential, the code presented in this paper should be applied to a simulated data set, obtained with the model developed above using the original data (see Supplementary materials).
+
+In the following, we show the figures that should be obtained using the proposed simulated data set and the code developed in the previous sections.
 
 ```{r, echo =F, fig.width=10,fig.height=6}
 #| label: fig-res-occ-sim
@@ -1578,7 +1581,7 @@ The authors are grateful to Météo-France for making the SAFRAN data available.
 
 # Supplementary materials {.unnumbered}
 
-All data used in this study are available at the following link: [https://doi.org/10.5281/zenodo.7870592](https://doi.org/10.5281/zenodo.7870592). Note that for confidentiality reasons, the fire data provided correspond to simulated data from the model developed in this work.
+All data used in this study are available at the following link: [https://doi.org/10.5281/zenodo.7870592](https://doi.org/10.5281/zenodo.7870592). Note that for confidentiality reasons, the wildfire data provided correspond to simulated data from the model developed in this work.
 
 The R codes are available on GitHub: [https://github.com/jlegrand35/wildfire_activities](https://github.com/jlegrand35/wildfire_activities)
 
