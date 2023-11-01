@@ -745,7 +745,7 @@ plot_simulated_occ = plots
 ::: {#fig-res-occ}
 ![](computo_figures/fig-res-occ-1.png)
 
-top: Spatial patterns of observed wildfire occurrences (left) and simulated occurrences (right). bottom: Simulated wildfire occurrences with $95\\%$ pointwise confidence intervals (in red) and observations (black dots).
+top: Spatial patterns of observed wildfire occurrences (left) and simulated occurrences (right). bottom: Simulated wildfire occurrences with $95\%$ pointwise confidence intervals (in red) and observations (black dots).
 ::: 
 
 @fig-res-occ highlights that the model successfully recovers both the spatial and temporal pattern of fire occurrences. Almost all observations are within the uncertainty bands of the posterior model. The temporal aggregations also highlights the temporal trends and stochasticity of wildfire regimes, with for instance a stronger fire activity at the end of August.
@@ -967,7 +967,7 @@ plot_simulated_size = plots
 ::: {#fig-res-sizes}
 ![](computo_figures/fig-res-sizes-1.png)
 
-top: Spatial patterns of observed wildfire sizes (left) and simulated sizes (right). bottom: Simulated wildfire sizes with $95\\%$ pointwise confidence intervals (in red) and observations (black dots).
+top: Spatial patterns of observed wildfire sizes (left) and simulated sizes (right). bottom: Simulated wildfire sizes with $95\%$ pointwise confidence intervals (in red) and observations (black dots).
 ::: 
 
 
