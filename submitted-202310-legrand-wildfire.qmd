@@ -92,7 +92,7 @@ The wildfire data considered in this study are partially provided by the [BDIFF]
 
 ::: {#fig-data layout-ncol=2 layout-valign="bottom"}
 
-![Locations of wildfire activities during 2006-2020 over the region of interest.](computo_figures/map_aquitaine.png){#fig-fire-plot width=50%}
+![Locations of wildfire activities during 2006-2020 over the region of interest.](computo_figures/map_aquitaine.png){#fig-fire-plot width=80%}
 
 ![Spatial footprint of FWI observed on July 4, 2011 ](computo_figures/FWI_map.png){#fig-FWI-plot widht=10%}
 
