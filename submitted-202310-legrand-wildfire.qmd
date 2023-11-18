@@ -58,8 +58,6 @@ library(INLA)
 library(knitr)
 library(kableExtra)
 
-# DATA = "computo_data/"
-
 poisson.sim.occ =function(x,Dat){
   # simulation of observing at least 1 fire + selection of corresponding events
   Dat[rpois(length(x), lambda = x)>0, ]
@@ -90,7 +88,7 @@ In the following, we build on the previous study of @Pimont2021 but we implement
 
 The wildfire data considered in this study are partially provided by the [BDIFF](https://bdiff.agriculture.gouv.fr/) database which collects information on wildfires since 2006 on the whole French territory but for which no stochastic models similar to Firelihood have been developed so far. Since BDIFF data are known to show some gaps, they have been completed with those from a public-private network working on territorial risk management (GIP ATGeRi). We extracted data from 2006 to 2020 in the former administrative Aquitaine region, corresponding to four French ``départements" Dordogne, Gironde, Landes and Lot-et-Garonne (see the left display in @fig-data). Due to meteorological factors and specific human activities (agriculture, tourism), winter and summer wildfires correspond to two different fire regimes. Therefore, in this study, we focus on the summer wildfires, which are more numerous and on average also much bigger in terms of size, and we keep only wildfires that have occurred between May to October.
 
-::: {#fig-data layout-ncol=2 layout-valign="bottom"}
+::: {#fig-data layout-ncol=2 layout-valign="center"}
 
 ![Locations of wildfire activities during 2006-2020 over the region of interest.](computo_figures/map_aquitaine.png){#fig-fire-plot width=80%}
 
