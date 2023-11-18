@@ -33,6 +33,7 @@ draft: true # set to false once the build is running
 published: false # will be set to true once accepted
 format:
   computo-html: default
+  computo-pdf: default
 ---
 
 ```{r setup, include=FALSE}
@@ -90,7 +91,7 @@ The wildfire data considered in this study are partially provided by the [BDIFF]
 
 ::: {#fig-data layout-ncol=2 layout-valign="center"}
 
-![Locations of wildfire activities during 2006-2020 over the region of interest.](computo_figures/map_aquitaine.png){#fig-fire-plot width=80%}
+![Locations of wildfire activities during 2006-2020 over the region of interest.](computo_figures/map_aquitaine.png){#fig-fire-plot width=90%}
 
 ![Spatial footprint of FWI observed on July 4, 2011 ](computo_figures/FWI_map.png){#fig-FWI-plot widht=10%}
 
