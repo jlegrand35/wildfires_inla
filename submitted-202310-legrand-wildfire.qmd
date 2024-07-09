@@ -33,7 +33,7 @@ draft: true # set to false once the build is running
 published: false # will be set to true once accepted
 format:
   computo-html: default
-  computo-pdf: default
+  computo-pdf: false #to be set to default but there is a missing package for fonts 
 ---
 
 ```{r setup, include=FALSE}
